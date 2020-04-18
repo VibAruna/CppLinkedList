@@ -79,6 +79,24 @@ class LinkedList
         * Ret   : None
         ******************************************************************************************************/
         void empty();
+
+
+        /******************************************************************************************************
+        * Func  : operator=
+        * Desc  : Operator overloading of =. Points this list object to the header node of the rhs object.
+        * Param : rhs - right hand side LinkedList object
+        * Ret   : None
+        ******************************************************************************************************/
+        void operator=(const LinkedList& rhs);
+
+
+        /******************************************************************************************************
+        * Func  : operator[]
+        * Desc  : Operator overloading of []. Returns a reference to the element in the specified index.
+        * Param : index - index of the element to return
+        * Ret   : A reference to the element in the index
+        ******************************************************************************************************/
+        T& operator[](const unsigned int index);
     
     private:
         struct ListNode
@@ -99,6 +117,16 @@ class LinkedList
         * Ret   : None
         ******************************************************************************************************/
         void getElementPtr(const unsigned int index, ListNode** ptr);
+
+
+        /******************************************************************************************************
+        * Func  : getLastElementPtr
+        * Desc  : Search for the pointer to the last list node.
+        * Param : ptr   - pointer to a ListNode pointer variable. Pointer of the last node is assigned to the
+        *                 pointer variable pointed by this. 
+        * Ret   : None
+        ******************************************************************************************************/
+        void getLastElementPtr(ListNode** ptr);
     
 };
 
@@ -202,6 +230,24 @@ void LinkedList<T>::getElementPtr(const unsigned int index, ListNode** ptr)
 
 
 template <class T>
+void LinkedList<T>:: getLastElementPtr(ListNode** ptr)
+{
+    if(this->headerNode == nullptr)
+    {
+        *ptr = nullptr;
+    }
+    else
+    {
+        ListNode* last_node = this->headerNode;
+        while(last_node->nextNode != nullptr)
+        {
+            last_node = last_node->nextNode;
+        }
+        *ptr = last_node;        
+    }
+}
+
+template <class T>
 const unsigned int LinkedList<T>::size()
 {
     unsigned int length = 0;
@@ -265,4 +311,18 @@ void LinkedList<T>:: empty()
         
     }
     
+}
+
+
+template <class T>
+void LinkedList<T>::operator=(const LinkedList& rhs)
+{
+    this->headerNode = rhs.headerNode;
+}
+
+
+template <class T>
+T& LinkedList<T>::operator[](const unsigned int index)
+{   
+    return this->get(index);
 }

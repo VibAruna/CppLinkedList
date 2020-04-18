@@ -26,9 +26,13 @@ int main()
     list.removeAt(list.size()-1);
     list.removeAt(0);
     // // // list.empty();
+
+    LinkedList<int> list2;
+    list2 = list;
+    
     for(int i = 0; i < list.size(); i++)
     {
-        std::cout << list.get(i) << std::endl;
+        std::cout << list[i]  << std::endl;
     }
     
     return 0;
