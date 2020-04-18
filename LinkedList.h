@@ -1,37 +1,125 @@
 #pragma once
 
-#include "ListNode.h"
-// #include "IndexOutOfBoundException.h"
+#include "IndexOutOfBoundException.h"
+#include <iostream>
 
 template <class T>
 class LinkedList
 {
     public:
+        /******************************************************************************************************
+        * Func  : ~LinkedList()
+        * Desc  : Destructor of the object. Clear all the elements in the list.
+        * Param : None
+        * Ret   : None
+        ******************************************************************************************************/
         ~LinkedList(){this->empty();}
+
+
+        /******************************************************************************************************
+        * Func  : add
+        * Desc  : Adds an element to the end of the list. 
+        * Param : element - constant reference to an element to be added.
+        * Ret   : None
+        ******************************************************************************************************/
         void add(const T& element);
+
+
+        /******************************************************************************************************
+        * Func  : add
+        * Desc  : Adds an element to the specified index of the list. Shifts any subsequent elements to the right
+        * Param : index     - index to add the element
+        *         element   - constant reference to an element to be added
+        * Ret   : None
+        ******************************************************************************************************/
         void addAt(unsigned int index, const T& element);
+
+
+        /******************************************************************************************************
+        * Func  : updateAt
+        * Desc  : Updates the specified index with the new element.
+        * Param : index     - index to update
+        *         element   - new element for the specified index
+        * Ret   : None
+        ******************************************************************************************************/
         void updateAt(unsigned int index, const T& element);
-        const T& get(const unsigned int index);
+
+
+        /******************************************************************************************************
+        * Func  : get
+        * Desc  : Returns a reference to the element in the specified index.
+        * Param : index - index of the element to return
+        * Ret   : A reference to the element in the index
+        ******************************************************************************************************/
+        T& get(const unsigned int index);
+
+
+        /******************************************************************************************************
+        * Func  : size
+        * Desc  : Returns the number of elements in this list.
+        * Param : None
+        * Ret   : The number of elements in this list
+        ******************************************************************************************************/
         const unsigned int size();
+
+
+        /******************************************************************************************************
+        * Func  : removeAt
+        * Desc  : Removes the element at the specified position. Shifts any subsequent elements to the left
+        * Param : index - the index of the element to be removed
+        * Ret   : None
+        ******************************************************************************************************/
         void removeAt(const unsigned int index);
+
+
+        /******************************************************************************************************
+        * Func  : empty
+        * Desc  : Removes all the elements in the list.
+        * Param : None
+        * Ret   : None
+        ******************************************************************************************************/
         void empty();
     
     private:
-        ListNode<T>* headerNode = nullptr;
+        struct ListNode
+        {
+            //Structure to store data.
+            T element;
+            ListNode* nextNode = nullptr;
+        };
+        ListNode* headerNode = nullptr;  //Points to the header node
+
+
+        /******************************************************************************************************
+        * Func  : getElementPtr
+        * Desc  : Search for the pointer to the list node in the specified index.
+        * Param : index - index of the element search
+        *         ptr   - pointer to a ListNode pointer variable. Pointer of the specified index is assigned to
+        *                 the pointer variable pointed by this. 
+        * Ret   : None
+        ******************************************************************************************************/
+        void getElementPtr(const unsigned int index, ListNode** ptr);
     
 };
 
+
+//------------------------------------function definitions-----------------------------------------------------
 
 template <class T>
 void LinkedList<T>::add(const T& element)
 {
     if(this->headerNode == nullptr)
     {
-        this->headerNode = new ListNode<T>(element);
+        this->headerNode = new ListNode{element};
     }
     else
     {
-        this->headerNode->add(element);
+        ListNode* lastNode = this->headerNode;
+        while(lastNode->nextNode != nullptr)
+        {
+            lastNode = lastNode->nextNode;
+        }
+        lastNode->nextNode = new ListNode{element};
     }
 }
 
@@ -39,50 +127,76 @@ void LinkedList<T>::add(const T& element)
 template <class T>
 void LinkedList<T>::addAt(unsigned int index, const T& element)
 {
-    if(index == 0 && this->headerNode == nullptr)
+    ListNode* element_ptr;
+    if(index == 0)
     {
-        this->add(element);
-    }
-    else if(this->headerNode != nullptr)
-    {
-        this->headerNode->add(0, index, element);
+        if(headerNode == nullptr)
+        {   
+            this->add(element);
+            return;
+        }
+        else {element_ptr = headerNode;}
     }
     else
     {
-        IndexOutOfBoundException ex(index, 0);
-        throw ex;
+        this->getElementPtr(index-1, &element_ptr);
+        if(element_ptr -> nextNode == nullptr) 
+        {
+            this->add(element);
+            return;
+        }
+        else {element_ptr = element_ptr -> nextNode;}
     }
-    
+
+    ListNode* cpy_node = new ListNode{element_ptr->element, element_ptr->nextNode};
+    element_ptr->element = element;
+    element_ptr->nextNode = cpy_node;    
 }
 
 
 template <class T>
 void LinkedList<T>::updateAt(unsigned int index, const T& element)
 {
-    if(this->headerNode != nullptr)
-    {
-        this->headerNode->update(0, index, element);
-    }
-    else
-    {
-        IndexOutOfBoundException ex(index, 0);
-        throw ex;
-    }
-    
+    ListNode* element_ptr;
+    this->getElementPtr(index, &element_ptr);
+    element_ptr->element = element;    
 }
 
 
 template <class T>
-const T& LinkedList<T>::get(const unsigned int index)
+T& LinkedList<T>::get(const unsigned int index)
+{    
+    ListNode* element_ptr;
+    this->getElementPtr(index, &element_ptr);
+    return element_ptr->element;
+    
+}   
+
+
+template <class T>
+void LinkedList<T>::getElementPtr(const unsigned int index, ListNode** ptr)
 {
-    if(this->headerNode != nullptr)
+    if(this->headerNode == nullptr)
     {
-        this->headerNode->get(0, index);
+        this->empty();
+        IndexOutOfBoundException ex(index, 0);
+        throw ex;
     }
     else
     {
-        IndexOutOfBoundException ex(index, 0);
-        throw ex;
+        ListNode* node = this->headerNode;
+        for(unsigned int i = 0; i < index; i++)
+        {
+            node = node->nextNode;
+            if(node == nullptr)
+            {
+                this->empty();
+                IndexOutOfBoundException ex(index, i+1);
+                throw ex;
+            }
+            
+        }
+        *ptr = node;
     }
 }
 
@@ -90,29 +204,47 @@ const T& LinkedList<T>::get(const unsigned int index)
 template <class T>
 const unsigned int LinkedList<T>::size()
 {
-    if(this->headerNode == nullptr)
+    unsigned int length = 0;
+    ListNode* next = this->headerNode;
+    while(next != nullptr)
     {
-        return 0;
+        length++;
+        next = next->nextNode;
     }
-    else
-    {
-        return this->headerNode->count(0) + 1;
-    }
+    return length;
 }
 
 
 template <class T>
 void LinkedList<T>::removeAt(const unsigned int index)
 {
-    if(this->headerNode != nullptr)
+    if(index > 0)
     {
-        this->headerNode->removeAt(0, index);
+        ListNode* element_ptr;
+        this->getElementPtr(index-1, &element_ptr);
+        if(element_ptr->nextNode != nullptr)
+        {
+            ListNode* next_element = element_ptr->nextNode->nextNode;
+            delete element_ptr->nextNode;
+            element_ptr->nextNode = next_element;
+        }
+        else
+        {
+            this->empty();
+            IndexOutOfBoundException ex(index, index);
+            throw ex;
+        }
+        
     }
     else
     {
-        IndexOutOfBoundException ex(index, 0);
-        throw ex;
+        ListNode* next_element = this->headerNode->nextNode;
+        delete this->headerNode;
+        this->headerNode = next_element;
     }
+    
+
+    
 }
 
 
@@ -121,9 +253,16 @@ void LinkedList<T>:: empty()
 {
    if(this->headerNode != nullptr)
     {
-        this->headerNode->removeAll();
-        delete this->headerNode;
-        this->headerNode = nullptr;
+        ListNode* parent = this->headerNode;
+        ListNode* child;
+        do
+        {
+            child = parent->nextNode;
+            delete parent;
+            parent = child;
+        }
+        while(child != nullptr);
+        
     }
     
 }

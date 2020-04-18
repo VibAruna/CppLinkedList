@@ -16,14 +16,16 @@ int main()
     LinkedList<int> list;
     for(int i = 0; i < 10; i++)
     {
-        // list.addAt(i,i);
-        list.add(i);
+        list.addAt(i,i);
+        // list.add(i+5);
     }
     
     list.addAt(2,3);
+    list.addAt(5,1);
     list.updateAt(6,3);
-    list.removeAt(7);
-    // // list.empty();
+    list.removeAt(list.size()-1);
+    list.removeAt(0);
+    // // // list.empty();
     for(int i = 0; i < list.size(); i++)
     {
         std::cout << list.get(i) << std::endl;

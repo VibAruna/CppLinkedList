@@ -9,6 +9,6 @@ IndexOutOfBoundException::IndexOutOfBoundException(unsigned int req_index, unsig
 const char* IndexOutOfBoundException::what() const throw()
 {
     char* err_msg = new char[80];
-    sprintf(err_msg, "IndexOutOfBoundException : Requested Index : %d Last Index : %d", req_index, length);
+    sprintf(err_msg, "IndexOutOfBoundException : Requested Index : %d Length : %d", req_index, length);
     return err_msg;
 }
